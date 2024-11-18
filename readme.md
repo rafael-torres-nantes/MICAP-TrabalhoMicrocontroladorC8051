@@ -8,12 +8,12 @@ Este projeto consiste na criação de um **Sistema de Alarme Residencial** utili
 ## ✅ Requisitos do Projeto
 | Requisito                                  | Status       |
 |--------------------------------------------|--------------|
-| **2 Dispositivos de Entrada**              | ❌ Pendente  |
-| **2 Dispositivos de Saída**                | ✅ LCD Gráfico, Buzzer |
+| **2 Dispositivos de Entrada**              | ✅ Teclado e   |
+| **2 Dispositivos de Saída**                | ✅ LCD Gráfico e Buzzer |
 | **1 Dispositivo de Armazenamento**         | ✅ RAM SPI   |
-| **1 Dispositivo de Comunicação**           | ❌ Bluetooth |
-| **1 Dispositivo Atuador**                  | ❌ Motor de Passo |
-| **Watchdog Timer Ativado**                 | ❌ Pendente  |
+| **1 Dispositivo de Comunicação**           | ✅ Bluetooth |
+| **1 Dispositivo Atuador**                  | ✅ Motor de Passo |
+| **Watchdog Timer Ativado**                 | ✅ Pendente  |
 
 ---
 

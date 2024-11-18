@@ -1,3 +1,7 @@
+#define NOP4() NOP();NOP();NOP();NOP()
+#define NOP8() NOP4();NOP4()
+#define NOP12() NOP8();NOP4()
+
 void delay_ms(unsigned int t){
 	TMOD |= 0x01;
 	TMOD &= ~0x02;

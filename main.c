@@ -4,19 +4,17 @@
 #include "glcd.c"
 #include "ram_spi.c"
 #include "delay.c"
+#include "motor_passo.c"
+#include "buzzer.c"
 
-#define buzzer P2_7
-
+// Definições
+#define CASA_DESTRANCADA 0xFF 
 #define END_RESIDENCIA_1 0x10
 #define END_RESIDENCIA_2 0x20
 #define END_RESIDENCIA_3 0x30
 #define END_RESIDENCIA_4 0x40
 
 #define LED P2_0
-#define MOTOR_PASSO_R1 P2_1
-#define MOTOR_PASSO_R2 P2_2
-#define MOTOR_PASSO_R3 P2_3
-#define MOTOR_PASSO_R4 P2_4
 
 __code const unsigned char end_residencia[4] = {0x10, 0x20, 0x30, 0x40};
 __code unsigned char pin[4];
@@ -48,7 +46,7 @@ void clean_glcd() {
 }
 
 /*******************************
-*        Interrupção UART
+*        Interrupção UART (Bluetooth)
 ********************************/
 void isr_UART0(void) __interrupt 4 {
     if (RI0 == 1) {
@@ -58,37 +56,12 @@ void isr_UART0(void) __interrupt 4 {
     }
 }
 
-/*******************************
-*            Buzzer
-********************************/
-void ligar_buzzer(unsigned int ciclos, unsigned int meio_periodo) {
-    while (ciclos) {
-        buzzer = 0;
-        delay_us(meio_periodo);
-        buzzer = 1;
-        delay_us(meio_periodo);
-        ciclos--;
-    }
-}
-
 /***************************************************
 *  Função para verificar se a residência está trancada
 ****************************************************/
 unsigned int check_locked(unsigned int house_number) {
     unsigned char dado = le_RAM_SPI(end_residencia[house_number - 1]);
-    return dado != 0xFF;
-}
-
-/*******************************
-* Função para controlar motores de passo
-********************************/
-void controlar_motor_passo(unsigned char motor, unsigned char estado) {
-    switch (motor) {
-        case 1: MOTOR_PASSO_R1 = estado; break;
-        case 2: MOTOR_PASSO_R2 = estado; break;
-        case 3: MOTOR_PASSO_R3 = estado; break;
-        case 4: MOTOR_PASSO_R4 = estado; break;
-    }
+    return dado != CASA_DESTRANCADA;
 }
 
 /*******************************
@@ -106,9 +79,9 @@ unsigned int init_residencial_system() {
 
     // Limpa os registros na memória RAM SPI
     for (int i = 0; i < 4; i++) {
-        esc_RAM_SPI(end_residencia[i], 0xFF);
+        esc_RAM_SPI(end_residencia[i], CASA_DESTRANCADA);
         dado = le_RAM_SPI(end_residencia[i]);
-        if (dado != 0xFF) {
+        if (dado != CASA_DESTRANCADA) {
             printf_fast_f("\x01 \nERROR IN RESIDENCE %d !!!!\n", i + 1);
             flagError = 1;
         }
@@ -120,7 +93,8 @@ unsigned int init_residencial_system() {
 *   Menu para desabilitar o alarme
 **************************************/
 void menu_input_password(unsigned int number_end) {
-    unsigned char pin_salvo[4];
+    unsigned int pin_correspondente;
+    unsigned char pin_residencia[4];
     printf_fast_f("\nInsira a senha de 4 dígitos:\n");
 
     // Captura o PIN do usuário
@@ -133,13 +107,13 @@ void menu_input_password(unsigned int number_end) {
 
     // Lê o PIN salvo na memória
     for (int i = 0; i < 4; i++) {
-        pin_salvo[i] = le_RAM_SPI(end_residencia[number_end - 1] + i);
+        pin_residencia[i] = le_RAM_SPI(end_residencia[number_end - 1] + i);
     }
 
     // Verifica se o PIN está correto
-    int pin_correspondente = 1;
+    pin_correspondente = 1;
     for (int i = 0; i < 4; i++) {
-        if (pin_salvo[i] != pin[i]) {
+        if (pin_residencia[i] != pin[i]) {
             pin_correspondente = 0;
             break;
         }
@@ -158,13 +132,18 @@ void menu_input_password(unsigned int number_end) {
 *   Menu para registrar alarme
 ********************************/
 void register_menu(unsigned int number_end) {
+    
+    // Caso a Residência esteja Trancada
     if (check_locked(number_end)) {
         printf_fast_f("Residence is LOCKED\n");
         delay_ms(3000);
         printf_fast_f("Aguarde para desbloquear a senha\n");
         delay_ms(3000);
         menu_input_password(number_end);
-    } else {
+    } 
+    
+    // Caso a Residência esteja Aberta (Sem chave)
+    else {
         printf_fast_f("\nEnter a 4-digit PIN: ");
         
         // Captura o PIN do usuário
@@ -193,10 +172,10 @@ void main_menu() {
         printf_fast_f("\nResidences Available:\n");
 
         for (int i = 1; i <= 4; i++) {
-            if (!check_locked(i)) {
-                printf_fast_f("%c - Residence %d - UNLOCK\n", 'a' + (i - 1), i);
+            if (check_locked(i)) {
+                printf_fast_f("Residence %d - LOCKED\n", i);
             } else {
-                printf_fast_f("%c - Residence %d - LOCKED\n", 'a' + (i - 1), i);
+                printf_fast_f("Residence %d - UNLOCKED\n", i);
             }
         }
         printf_fast_f("\nSelect an option: ");
