@@ -15,8 +15,8 @@
 #define CO 0
 #define DA 1
 #define NOP4() NOP();NOP();NOP();NOP()
-#define NOP8() NOP4();NOP4();
-#define NOP12() NOP4();NOP8();
+#define NOP8() NOP4();NOP4()
+#define NOP12() NOP4();NOP8()
 
 volatile unsigned char conta_caractere = 0;
 volatile __bit terminal_ativo = 0;
