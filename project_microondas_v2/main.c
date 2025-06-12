@@ -61,9 +61,9 @@ void ISR_TC2(void) __interrupt 5 {
 *
 *************************************************/
 unsigned char le_tec(void) {
-    if(P3_1 == 0) return 0; // Botão 30s
-    if(P3_2 == 0) return 1; // Botão 1m
-    if(P3_3 == 0) return 2; // Botão 2m
+    if(P1_7 == 0) return 0; // Botão 30s
+    if(P1_6 == 0) return 1; // Botão 1m
+    if(P1_5 == 0) return 2; // Botão 2m
     if(P3_0 == 0) return 3; // NOVO: Botão de Pausa/Retornar
     return TECS_OPEN;
 }
