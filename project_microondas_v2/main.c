@@ -6,8 +6,8 @@
 #include "ram_spi.c" // Inclui o driver da RAM SPI
 
 // --- Pinos de Controle ---
-#define MOTOR P1_7
-#define MICROONDAS P0_7
+#define MOTOR P0_7
+#define MICROONDAS P1_7
 #define BUZZER P2_7
 
 // --- Constantes do Sistema ---
@@ -24,7 +24,7 @@ volatile unsigned char TECLA_ANT = TECS_OPEN;
 
 // --- Protótipos das Funções ---
 void fase_entrada_dados(int *tempo_final_s);
-void fase_contagem_regressiva(int tempo_total_s);
+int fase_contagem_regressiva(int tempo_total_s);
 void fase_finalizacao(int tempo_executado_s);
 unsigned char le_tec(void);
 
@@ -61,9 +61,9 @@ void ISR_TC2(void) __interrupt 5 {
 *
 *************************************************/
 unsigned char le_tec(void) {
-    if(P1_7 == 0) return 0; // Botão 30s
-    if(P1_6 == 0) return 1; // Botão 1m
-    if(P1_5 == 0) return 2; // Botão 2m
+    if(P3_5 == 0) return 0; // Botão 30s
+    if(P3_6 == 0) return 1; // Botão 1m
+    if(P3_7 == 0) return 2; // Botão 2m
     if(P3_0 == 0) return 3; // NOVO: Botão de Pausa/Retornar
     return TECS_OPEN;
 }
@@ -115,9 +115,10 @@ void fase_entrada_dados(int *tempo_final_s) {
     limpa_glcd(DIR);
     printf_fast_f("\x01 Tempo (UART):");
     printf_fast_f("\x02 > %d%d:%d%d", tempo_digitos[0], tempo_digitos[1], tempo_digitos[2], tempo_digitos[3]);
-    printf_fast_f("\x04 BtnP3_1:30s | BtnP3_1:1m"); // Menu ajustado
-    printf_fast_f("\x05 UART: 'R' p/ Ligar");
-    printf_fast_f("\x06       'C' p/ Limpar");
+    printf_fast_f("\x03 Press P3_5:30s");
+    printf_fast_f("\x04 Press P3_6:60s"); 
+    printf_fast_f("\x05 Press'R':Ligar");
+    printf_fast_f("\x06 Press'C':Limpar");
 
     while(1) {
 
@@ -170,8 +171,8 @@ int fase_contagem_regressiva(int tempo_total_s) {
     limpa_glcd(ESQ);
     limpa_glcd(DIR);
     printf_fast_f("\x01 Aquecendo...");
-    printf_fast_f("\x04 BtnP3_0: Pausar"); // Exibe a opção de pausar
-    printf_fast_f("\x05 UART: 'P' p/ Pausar"); // Exibe a opção de pausar
+    printf_fast_f("\x06 BtnP3_0: Pausar"); // Exibe a opção de pausar
+    printf_fast_f("\x07 Press'P':Pausar");
 
     while (tempo_total_s >= 0) {
         // --- VERIFICA SE O BOTÃO DE PAUSA FOI PRESSIONADO ---
@@ -255,6 +256,7 @@ void main(void) {
     esc_RAM_SPI(ENDERECO_ULTIMO_TEMPO, (0x00));
     esc_RAM_SPI(ENDERECO_ULTIMO_TEMPO + 1, (0x00));
 	BUZZER = 0;
+	MOTOR = 0;
 
     while (1) {
         fase_entrada_dados(&tempo_selecionado);
