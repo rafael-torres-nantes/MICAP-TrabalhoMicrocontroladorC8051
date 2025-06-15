@@ -75,7 +75,7 @@ void Port_IO_Init()
     // P0.4  -  MOSI (SPI0), Push-Pull,  Digital
     // P0.5  -  INT0 (Tmr0), Push-Pull,  Digital
     // P0.6  -  Unassigned,  Open-Drain, Digital
-    // P0.7  -  Unassigned,  Open-Drain, Digital
+    // P0.7  -  Unassigned,  Push-Pull,  Digital
 
     // P1.0  -  Unassigned,  Open-Drain, Digital
     // P1.1  -  Unassigned,  Open-Drain, Digital
@@ -95,19 +95,18 @@ void Port_IO_Init()
     // P2.6  -  Unassigned,  Push-Pull,  Digital
     // P2.7  -  Unassigned,  Push-Pull,  Digital
 
-    // P3.0  -  Unassigned,  Push-Pull,  Digital
-    // P3.1  -  Unassigned,  Push-Pull,  Digital
-    // P3.2  -  Unassigned,  Push-Pull,  Digital
-    // P3.3  -  Unassigned,  Push-Pull,  Digital
-    // P3.4  -  Unassigned,  Push-Pull,  Digital
-    // P3.5  -  Unassigned,  Push-Pull,  Digital
-    // P3.6  -  Unassigned,  Push-Pull,  Digital
-    // P3.7  -  Unassigned,  Push-Pull,  Digital
+    // P3.0  -  Unassigned,  Open-Drain, Digital
+    // P3.1  -  Unassigned,  Open-Drain, Digital
+    // P3.2  -  Unassigned,  Open-Drain, Digital
+    // P3.3  -  Unassigned,  Open-Drain, Digital
+    // P3.4  -  Unassigned,  Open-Drain, Digital
+    // P3.5  -  Unassigned,  Open-Drain, Digital
+    // P3.6  -  Unassigned,  Open-Drain, Digital
+    // P3.7  -  Unassigned,  Open-Drain, Digital
 
     SFRPAGE   = CONFIG_PAGE;
-    P0MDOUT   = 0x35;
+    P0MDOUT   = 0xB5;
     P2MDOUT   = 0xFB;
-    P3MDOUT   = 0xFF;
     XBR0      = 0x06;
     XBR1      = 0x04;
     XBR2      = 0x40;
