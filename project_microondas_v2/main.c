@@ -122,6 +122,8 @@ void fase_entrada_dados(int *tempo_final_s) {
 
     while(1) {
 
+        WDTCN = 0xA5; // NOVO: Alimenta o Watchdog a cada iteração 
+
         // --- Processa entrada do Teclado (UART) ---
         if (char_recebido_flag) {
 
@@ -176,6 +178,9 @@ int fase_contagem_regressiva(int tempo_total_s) {
 
     while (tempo_total_s >= 0) {
         // --- VERIFICA SE O BOTÃO DE PAUSA FOI PRESSIONADO ---
+
+        WDTCN = 0xA5; // NOVO: Alimenta o Watchdog a cada segundo
+
         if (TECLA != TECS_OPEN) {
             unsigned char tecla_pressionada = TECLA;
             TECLA = TECS_OPEN; // Limpa a flag da tecla
@@ -227,6 +232,8 @@ void fase_finalizacao(int tempo_executado_s) {
     
     MOTOR = 0;
     MICROONDAS = 0;
+    
+    WDTCN = 0xA5; // NOVO: Alimenta o Watchdog antes de iniciar a finalização
 
     // Salva o tempo executado na RAM SPI
     esc_RAM_SPI(ENDERECO_ULTIMO_TEMPO, (tempo_executado_s >> 8));     // Salva o byte mais significativo
@@ -259,6 +266,9 @@ void main(void) {
 	MOTOR = 0;
 
     while (1) {
+
+        WDTCN = 0xA5; // NOVO: Alimenta o Watchdog a cada ciclo do loop principal
+
         fase_entrada_dados(&tempo_selecionado);
 
         // A contagem só inicia se o tempo for maior que zero
